@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("SqliteDumper")]
-[assembly: AssemblyDescription("Parser a SQLite database file using only binary file reading operations")]
+[assembly: AssemblyDescription("Dumps an SQLite database file using only binary file reading operations")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Vurdalakov")]
 [assembly: AssemblyProduct("SqliteParser")]

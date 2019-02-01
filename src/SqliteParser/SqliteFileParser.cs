@@ -54,7 +54,7 @@
             }
 
             var pageType = (CellType)this._pageReader.Read8();
-            if (0 == pageType)
+            if (CellType.Unused == pageType)
             {
                 return;
             }
