@@ -13,17 +13,18 @@ using Vurdalakov.SqliteParser;
 
 public static void ExtractStrings(String dbFilePath)
 {
-    var parser = new SqliteFileParser();
-
-    parser.FieldRead += (s, e) =>
+    using (var parser = new SqliteFileParser(dbFilePath))
     {
-        if (SerialType.String == e.Type)
+        parser.FieldRead += (s, e) =>
         {
-            Console.WriteLine(e.Value as String);
-        }
-    };
+            if (SerialType.String == e.Type)
+            {
+                Console.WriteLine(e.Value as String);
+            }
+        };
 
-    parser.Parse(dbFilePath);
+        parser.Parse();
+    }
 }
 ```
 

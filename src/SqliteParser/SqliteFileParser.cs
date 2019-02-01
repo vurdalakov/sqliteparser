@@ -3,8 +3,9 @@
     using System;
     using System.IO;
 
-    public class SqliteFileParser
+    public class SqliteFileParser : IDisposable
     {
+        private Stream _stream;
         private PageLoader _pageLoader;
         private PageReader _pageReader;
 
@@ -16,99 +17,107 @@
 
         public Boolean ReportBlobSizesOnly { get; set; } = true;
 
-        public SqliteFileParser()
+        public SqliteFileParser(String dbFilePath)
         {
+            this._stream = new FileStream(dbFilePath, FileMode.Open, FileAccess.Read, FileShare.Read);
+            this.Open(this._stream);
         }
 
-        public void Parse(String dbFilePath)
+        public SqliteFileParser(Stream stream)
         {
-            var fileStream = new FileStream(dbFilePath, FileMode.Open, FileAccess.Read, FileShare.Read);
-
-            this.Parse(fileStream);
+            this.Open(stream);
         }
 
-        public void Parse(Stream stream)
+        private void Open(Stream stream)
         {
             this._pageLoader = new PageLoader(stream);
             this._pageReader = new PageReader(this._pageLoader);
+        }
 
+        public void Parse()
+        {
             for (var pageNumber = 1UL; pageNumber <= this._pageLoader.PageCount; pageNumber++)
             {
-                this._pageReader.LoadPage(pageNumber);
-
-                if (1 == pageNumber)
-                {
-                    this._pageReader.Position = 100;
-                }
-
-                var pageType = (CellType)this._pageReader.Read8();
-                if (0 == pageType)
-                {
-                    continue;
-                }
-
-                this._pageReader.Position += 2;
-                var cellCount = this._pageReader.Read16();
-
-                this.PageStarted?.Invoke(this, new PageEventArgs(pageNumber, pageType, cellCount));
-
-                var cellPointerArrayOffset = this._pageReader.Position + ((CellType.IndexInterior == pageType) || (CellType.TableInterior == pageType) ? 7 : 3UL);
-
-                for (var cellNumber = 0UL; cellNumber < cellCount; cellNumber++)
-                {
-                    this._pageReader.Position = cellPointerArrayOffset;
-                    cellPointerArrayOffset += 2;
-
-                    var cellOffset = this._pageReader.Read16();
-
-                    this._pageReader.Position = cellOffset;
-
-                    var rowid = 0UL;
-
-                    if (CellType.IndexInterior == pageType)
-                    {
-                        this._pageReader.Position += 4;
-                        var payloadSize = this._pageReader.Decode64();
-                        InvokeRowStartedEvent();
-
-                        DumpPayload(pageNumber, payloadSize);
-                    }
-                    else if (CellType.TableInterior == pageType)
-                    {
-                        this._pageReader.Position += 4;
-                        rowid = this._pageReader.Decode64();
-                        InvokeRowStartedEvent();
-                    }
-                    else if (CellType.IndexLeaf == pageType)
-                    {
-                        var payloadSize = this._pageReader.Decode64();
-                        InvokeRowStartedEvent();
-
-                        DumpPayload(pageNumber, payloadSize);
-                    }
-                    else if (CellType.TableLeaf == pageType)
-                    {
-                        var payloadSize = this._pageReader.Decode64();
-                        rowid = this._pageReader.Decode64();
-                        InvokeRowStartedEvent();
-
-                        DumpPayload(pageNumber, payloadSize);
-                    }
-                    else
-                    {
-                        InvokeRowStartedEvent();
-                    }
-
-                    this.CellFinished?.Invoke(this, new CellEventArgs(pageType, rowid));
-
-                    void InvokeRowStartedEvent()
-                    {
-                        this.CellStarted?.Invoke(this, new CellEventArgs(pageType, rowid));
-                    }
-                }
-
-                this.PageFinished?.Invoke(this, new PageEventArgs(pageNumber, pageType, cellCount));
+                this.ParsePage(pageNumber);
             }
+        }
+
+        public void ParsePage(UInt64 pageNumber)
+        {
+            this._pageReader.LoadPage(pageNumber);
+
+            if (1 == pageNumber)
+            {
+                this._pageReader.Position = 100;
+            }
+
+            var pageType = (CellType)this._pageReader.Read8();
+            if (0 == pageType)
+            {
+                return;
+            }
+
+            this._pageReader.Position += 2;
+            var cellCount = this._pageReader.Read16();
+
+            this.PageStarted?.Invoke(this, new PageEventArgs(pageNumber, pageType, cellCount));
+
+            var cellPointerArrayOffset = this._pageReader.Position + ((CellType.IndexInterior == pageType) || (CellType.TableInterior == pageType) ? 7 : 3UL);
+
+            for (var cellNumber = 0UL; cellNumber < cellCount; cellNumber++)
+            {
+                this._pageReader.Position = cellPointerArrayOffset;
+                cellPointerArrayOffset += 2;
+
+                var cellOffset = this._pageReader.Read16();
+
+                this._pageReader.Position = cellOffset;
+
+                var rowid = 0UL;
+
+                if (CellType.IndexInterior == pageType)
+                {
+                    this._pageReader.Position += 4;
+                    var payloadSize = this._pageReader.Decode64();
+                    InvokeRowStartedEvent();
+
+                    DumpPayload(pageNumber, payloadSize);
+                }
+                else if (CellType.TableInterior == pageType)
+                {
+                    this._pageReader.Position += 4;
+                    rowid = this._pageReader.Decode64();
+                    InvokeRowStartedEvent();
+                }
+                else if (CellType.IndexLeaf == pageType)
+                {
+                    var payloadSize = this._pageReader.Decode64();
+                    InvokeRowStartedEvent();
+
+                    DumpPayload(pageNumber, payloadSize);
+                }
+                else if (CellType.TableLeaf == pageType)
+                {
+                    var payloadSize = this._pageReader.Decode64();
+                    rowid = this._pageReader.Decode64();
+                    InvokeRowStartedEvent();
+
+                    DumpPayload(pageNumber, payloadSize);
+                }
+                else
+                {
+                    InvokeRowStartedEvent();
+                }
+
+                this.CellFinished?.Invoke(this, new CellEventArgs(pageType, rowid));
+
+                void InvokeRowStartedEvent()
+                {
+                    this.CellStarted?.Invoke(this, new CellEventArgs(pageType, rowid));
+                }
+            }
+
+            this.PageFinished?.Invoke(this, new PageEventArgs(pageNumber, pageType, cellCount));
         }
 
         private void DumpPayload(UInt64 pageNumber, UInt64 payloadSize)
@@ -210,5 +219,43 @@
                 }
             }
         }
+
+        #region IDisposable Support
+
+        private Boolean _isDisposed = false;
+
+        protected virtual void Dispose(Boolean disposing)
+        {
+            if (!this._isDisposed)
+            {
+                if (disposing)
+                {
+                    this._pageReader = null;
+                    this._pageLoader = null;
+
+                    if (this._stream != null)
+                    {
+                        this._stream.Close();
+                        this._stream.Dispose();
+                        this._stream = null;
+                    }
+                }
+
+                this._isDisposed = true;
+            }
+        }
+
+        ~SqliteFileParser()
+        {
+            this.Dispose(false);
+        }
+
+        public void Dispose()
+        {
+            this.Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        #endregion
     }
 }

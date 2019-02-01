@@ -20,17 +20,22 @@
             Console.WriteLine($"Database file path: '{dbFilePath}'");
             Console.WriteLine("-----------------------------------------------------------");
 
-            var parser = new SqliteFileParser();
-
-            parser.FieldRead += (s, e) =>
+            using (var parser = new SqliteFileParser(dbFilePath))
             {
-                if (SerialType.String == e.Type)
+                parser.FieldRead += (s, e) =>
                 {
-                    Console.WriteLine(e.Value as String);
-                }
-            };
+                    if (SerialType.String == e.Type)
+                    {
+                        var text = e.Value as String;
+                        if (!String.IsNullOrEmpty(text))
+                        {
+                            Console.WriteLine(text);
+                        }
+                    }
+                };
 
-            parser.Parse(dbFilePath);
+                parser.Parse();
+            }
         }
     }
 }
