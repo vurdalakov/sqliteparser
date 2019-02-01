@@ -15,6 +15,8 @@
         public event EventHandler<CellEventArgs> CellFinished;
         public event EventHandler<FieldEventArgs> FieldRead;
 
+        public SqliteFileHeader FileHeader { get; } = new SqliteFileHeader();
+
         public Boolean ReportBlobSizesOnly { get; set; } = true;
 
         public SqliteFileParser(String dbFilePath)
@@ -30,7 +32,7 @@
 
         private void Open(Stream stream)
         {
-            this._pageLoader = new PageLoader(stream);
+            this._pageLoader = new PageLoader(stream, this.FileHeader);
             this._pageReader = new PageReader(this._pageLoader);
         }
 

@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SqliteParser", "SqliteParse
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SqliteStrings", "SqliteStrings\SqliteStrings.csproj", "{D844F1F9-BEEA-46B1-85FB-C3DD26EA8DB1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SqliteDumper", "SqliteDumper\SqliteDumper.csproj", "{E8B43754-E55E-4333-95A4-D08DCB56F5DB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{D844F1F9-BEEA-46B1-85FB-C3DD26EA8DB1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D844F1F9-BEEA-46B1-85FB-C3DD26EA8DB1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D844F1F9-BEEA-46B1-85FB-C3DD26EA8DB1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E8B43754-E55E-4333-95A4-D08DCB56F5DB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E8B43754-E55E-4333-95A4-D08DCB56F5DB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E8B43754-E55E-4333-95A4-D08DCB56F5DB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E8B43754-E55E-4333-95A4-D08DCB56F5DB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

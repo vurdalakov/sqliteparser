@@ -8,7 +8,7 @@
         {
             if (args.Length != 1)
             {
-                Console.WriteLine("Usage: SqliteFileStrings <path to SQLite database file>");
+                Console.WriteLine("Usage: SqliteStrings <path to SQLite database file>");
                 return;
             }
 
@@ -17,9 +17,6 @@
 
         private static void ExtractStrings(String dbFilePath)
         {
-            Console.WriteLine($"Database file path: '{dbFilePath}'");
-            Console.WriteLine("-----------------------------------------------------------");
-
             using (var parser = new SqliteFileParser(dbFilePath))
             {
                 parser.FieldRead += (s, e) =>
