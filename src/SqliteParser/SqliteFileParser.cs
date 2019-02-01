@@ -59,14 +59,24 @@
                 return;
             }
 
-            this._pageReader.Position += 2;
-            var cellCount = this._pageReader.Read16();
+            var sqlitePageHeader = new SqlitePageHeader();
+            sqlitePageHeader.PageType = pageType;
+            sqlitePageHeader.FirstFreeblockOffset = this._pageReader.Read16();
+            sqlitePageHeader.CellCount = this._pageReader.Read16();
+            sqlitePageHeader.CellContentAreaOffset = this._pageReader.Read16();
+            sqlitePageHeader.FragmentedFreeBytesCount = this._pageReader.Read8();
 
-            this.PageStarted?.Invoke(this, new PageEventArgs(pageNumber, pageType, cellCount));
+            if ((CellType.IndexInterior == pageType) || (CellType.TableInterior == pageType))
+            {
+                sqlitePageHeader.RightMostPointer = this._pageReader.Read32();
+            }
 
-            var cellPointerArrayOffset = this._pageReader.Position + ((CellType.IndexInterior == pageType) || (CellType.TableInterior == pageType) ? 7 : 3UL);
+            var pageEventArgs = new PageEventArgs(pageNumber, sqlitePageHeader);
+            this.PageStarted?.Invoke(this, pageEventArgs);
 
-            for (var cellNumber = 0UL; cellNumber < cellCount; cellNumber++)
+            var cellPointerArrayOffset = this._pageReader.Position;
+
+            for (var cellNumber = 0UL; cellNumber < sqlitePageHeader.CellCount; cellNumber++)
             {
                 this._pageReader.Position = cellPointerArrayOffset;
                 cellPointerArrayOffset += 2;
@@ -119,7 +129,7 @@
                 }
             }
 
-            this.PageFinished?.Invoke(this, new PageEventArgs(pageNumber, pageType, cellCount));
+            this.PageFinished?.Invoke(this, pageEventArgs);
         }
 
         private void DumpPayload(UInt64 pageNumber, UInt64 payloadSize)

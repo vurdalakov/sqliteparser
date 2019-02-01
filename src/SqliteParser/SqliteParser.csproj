@@ -49,6 +49,7 @@
     <Compile Include="PayloadReader.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SerialType.cs" />
+    <Compile Include="SqlitePageHeader.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

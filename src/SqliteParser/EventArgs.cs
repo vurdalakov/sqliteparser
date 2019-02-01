@@ -29,14 +29,12 @@
     public class PageEventArgs : EventArgs
     {
         public UInt64 PageNumber { get; }
-        public CellType CellType { get; }
-        public UInt64 CellCount { get; }
+        public SqlitePageHeader PageHeader { get; }
 
-        public PageEventArgs(UInt64 pageNumber, CellType cellType, UInt64 cellCount)
+        public PageEventArgs(UInt64 pageNumber, SqlitePageHeader pageHeader)
         {
             this.PageNumber = pageNumber;
-            this.CellType = cellType;
-            this.CellCount = cellCount;
+            this.PageHeader = pageHeader;
         }
     }
 }
