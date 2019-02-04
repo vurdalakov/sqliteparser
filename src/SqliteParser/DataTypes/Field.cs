@@ -7,12 +7,15 @@ namespace Vurdalakov.SqliteParser
 {
     using System;
 
-    class Program
+    public class Field
     {
-        static void Main(String[] args)
+        public FieldType Type { get; }
+        public Object Value { get; }
+
+        internal Field(FieldType type, Object value)
         {
-            var application = new Application();
-            application.Run();
+            this.Type = type;
+            this.Value = value;
         }
     }
 }

@@ -5,14 +5,12 @@
 
 namespace Vurdalakov.SqliteParser
 {
-    using System;
-
-    class Program
+    public enum PageType
     {
-        static void Main(String[] args)
-        {
-            var application = new Application();
-            application.Run();
-        }
+        Unused = 0x00,
+        IndexInterior = 0x02,
+        TableInterior = 0x05,
+        IndexLeaf = 0x0A,
+        TableLeaf = 0x0D
     }
 }

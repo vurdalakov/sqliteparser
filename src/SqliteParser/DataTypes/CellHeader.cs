@@ -7,12 +7,11 @@ namespace Vurdalakov.SqliteParser
 {
     using System;
 
-    class Program
+    public class CellHeader
     {
-        static void Main(String[] args)
-        {
-            var application = new Application();
-            application.Run();
-        }
+        public PageType PageType { get; internal set; }
+        public UInt64 LeftChildPage { get; internal set; }
+        public UInt64 PayloadSize { get; internal set; }
+        public UInt64 Rowid { get; internal set; }
     }
 }

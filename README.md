@@ -2,29 +2,51 @@
 
 **[SqliteParser](https://github.com/vurdalakov/sqliteparser)** is a .NET class library to parse [SQLite](https://www.sqlite.org/index.html) database `.db` files using only binary file read operations.
 
-### Example
+### Examples
 
-The following C# code extracts all strings from a SQLite database file.
+#### Print SQLite database master table ("sqlite_master")
 
 ```
-using Vurdalakov.SqliteParser;
-
-...
-
-public static void ExtractStrings(String dbFilePath)
+using (var reader = new SqliteFileReader(dbFilePath))
 {
-    using (var parser = new SqliteFileParser(dbFilePath))
-    {
-        parser.FieldRead += (s, e) =>
-        {
-            if (SerialType.String == e.Type)
-            {
-                Console.WriteLine(e.Value as String);
-            }
-        };
+    reader.MasterTableRecordRead += (s, e) => Console.WriteLine($"{e.Record.Type}\t{e.Record.Name}\t{e.Record.TableName}\t{e.Record.RootPage}\t{e.Record.Sql}");
 
-        parser.Parse();
-    }
+    reader.ReadMasterTable();
+}
+```
+
+#### Print any table from SQLite database
+
+```
+using (var reader = new SqliteFileReader(dbFilePath))
+{
+    reader.TableRecordRead += (s, e) =>
+    {
+        foreach (var field in e.Fields)
+        {
+            Console.Write($"{field.Value}\t");
+        }
+        Console.WriteLine();
+    };
+
+    reader.ReadTable(tableName);
+}
+```
+
+#### Extract all strings from a SQLite database file
+
+```
+using (var parser = new SqliteFileParser(dbFilePath))
+{
+    parser.FieldRead += (s, e) =>
+    {
+        if (FieldType.String == e.Type)
+        {
+            Console.WriteLine(e.Value as String);
+        }
+    };
+
+    parser.Parse();
 }
 ```
 
@@ -36,8 +58,6 @@ public static void ExtractStrings(String dbFilePath)
 ### References
 
 * [SQLite Database File Format](https://sqlite.org/fileformat2.html)
-
-* [Parsing SQLite Database Schema in sqlitedb file?](https://stackoverflow.com/questions/21936528/parsing-sqlite-database-schema-in-sqlitedb-file)
 
 ### License
 

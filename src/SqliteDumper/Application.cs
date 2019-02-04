@@ -1,4 +1,9 @@
-﻿namespace Vurdalakov.SqliteParser
+﻿// SqliteParser is a .NET class library to parse SQLite database .db files using only binary file read operations
+// https://github.com/vurdalakov/sqliteparser
+// Copyright (c) 2019 Vurdalakov. All rights reserved.
+// SPDX-License-Identifier: MIT
+
+namespace Vurdalakov.SqliteParser
 {
     using System;
     using System.IO;
@@ -131,7 +136,7 @@
                 Console.WriteLine($"The start of the cell content area:\t{e.PageHeader.CellContentAreaOffset}");
                 Console.WriteLine($"The number of fragmented free bytes:\t{e.PageHeader.FragmentedFreeBytesCount}");
 
-                if ((CellType.IndexInterior == e.PageHeader.PageType) || (CellType.TableInterior == e.PageHeader.PageType))
+                if ((PageType.IndexInterior == e.PageHeader.PageType) || (PageType.TableInterior == e.PageHeader.PageType))
                 {
                     Console.WriteLine($"The right-most pointer:\t\t\t{e.PageHeader.RightMostPointer}");
                 }
