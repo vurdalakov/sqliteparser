@@ -1,6 +1,7 @@
 ﻿namespace Vurdalakov.SqliteParser
 {
     using System;
+    using System.Collections.Generic;
     using System.IO;
 
     public class Application : DosToolsApplication
@@ -44,12 +45,16 @@
                     case "pages":
                         this.DumpFilePages(parser);
                         break;
+                    case "t":
+                    case "tables":
+                        this.DumpTables(parser);
+                        return 0;
                     default:
                         this.Help();
                         break;
                 }
 
-                parser.Parse();
+                parser.ParseAllPages();
             }
 
             return 0;
@@ -121,6 +126,19 @@
                     Console.WriteLine($"The right-most pointer:\t\t\t{e.PageHeader.RightMostPointer}");
                 }
             };
+        }
+
+        private void DumpTables(SqliteFileParser parser)
+        {
+            using (var reader = new SqliteFileReader(parser))
+            {
+                var masterTableRecords = reader.ReadMasterTable();
+
+                foreach (var masterTableRecord in masterTableRecords)
+                {
+                    Console.WriteLine($"'{masterTableRecord.Type}'\t'{masterTableRecord.Name}'\t'{masterTableRecord.TableName}'\t{masterTableRecord.RootPage}\t'{masterTableRecord.Sql}'");
+                }
+            }
         }
     }
 }

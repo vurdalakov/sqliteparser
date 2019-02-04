@@ -4,25 +4,41 @@
 
     public class FieldEventArgs : EventArgs
     {
+        public UInt64 FieldNumber { get; }
         public SerialType Type { get; }
         public Object Value { get; }
 
-        public FieldEventArgs(SerialType type, Object value)
+        public FieldEventArgs(UInt64 fieldNumber, SerialType type, Object value)
         {
+            this.FieldNumber = fieldNumber;
             this.Type = type;
             this.Value = value;
         }
     }
 
+    public class PayloadEventArgs : EventArgs
+    {
+        public UInt64 CellNumber { get; }
+        public SqliteCellHeader CellHeader { get; }
+        public SqliteField[] Fields { get; }
+
+        public PayloadEventArgs(UInt64 cellNumber, SqliteCellHeader cellHeader, SqliteField[] fields)
+        {
+            this.CellNumber = cellNumber;
+            this.CellHeader = cellHeader;
+            this.Fields = fields;
+        }
+    }
+
     public class CellEventArgs : EventArgs
     {
-        public CellType CellType { get; }
-        public UInt64 Rowid { get; }
+        public UInt64 CellNumber { get; }
+        public SqliteCellHeader CellHeader { get; }
 
-        public CellEventArgs(CellType cellType, UInt64 rowid)
+        public CellEventArgs(UInt64 cellNumber, SqliteCellHeader cellHeader)
         {
-            this.CellType = cellType;
-            this.Rowid = rowid;
+            this.CellNumber = cellNumber;
+            this.CellHeader = cellHeader;
         }
     }
 
