@@ -1,7 +1,6 @@
 ﻿namespace Vurdalakov.SqliteParser
 {
     using System;
-    using System.Collections.Generic;
     using System.IO;
 
     public class Application : DosToolsApplication
@@ -45,13 +44,24 @@
                     case "pages":
                         this.DumpFilePages(parser);
                         break;
-                    case "t":
-                    case "tables":
+                    case "m":
+                    case "master":
                         this.DumpTables(parser);
+                        return 0;
+                    case "t":
+                    case "table":
+                        if (this._commandLineParser.OptionHasValue("name"))
+                        {
+                            this.DumpTable(parser, this._commandLineParser.GetOptionString("name"));
+                        }
+                        else
+                        {
+                            this.Help();
+                        }
                         return 0;
                     default:
                         this.Help();
-                        break;
+                        return 0;
                 }
 
                 parser.ParseAllPages();
@@ -67,8 +77,8 @@
             Console.WriteLine("SqliteDumper {0} | https://github.com/vurdalakov/sqliteparser\n", this.ApplicationVersion);
             Console.WriteLine("Dumps an SQLite database file using only binary file reading operations.\n");
             Console.WriteLine("Usage:\n\tSqliteDumper [command] <filename.db> [-silent]\n");
-            Console.WriteLine("Commands:\n\tall - show all info\n\theader - show file header\n\tpages - show file pages\n");
-            Console.WriteLine("Options:\n\t-silent - no error messages are shown; check exit code\n");
+            Console.WriteLine("Commands:\n\tall - show all info\n\theader - show file header\n\tpages - show file pages\n\tmaster - print sqlite_master table\n\ttable - print specific table\n");
+            Console.WriteLine("Options:\n\t-name=<table_name> - table name for 'table' command\n\t-silent - no error messages are shown; check exit code\n");
             Console.WriteLine("Exit codes:\n\t0 - conversion succeeded\n\t1 - conversion failed\n\t-1 - invalid command line syntax\n");
             
             base.Help();
@@ -132,12 +142,26 @@
         {
             using (var reader = new SqliteFileReader(parser))
             {
-                var masterTableRecords = reader.ReadMasterTable();
+                reader.MasterTableRecordRead += (s, e) => Console.WriteLine($"'{e.Record.Type}'\t'{e.Record.Name}'\t'{e.Record.TableName}'\t{e.Record.RootPage}\t'{e.Record.Sql}'");
 
-                foreach (var masterTableRecord in masterTableRecords)
+                reader.ReadMasterTable();
+            }
+        }
+
+        private void DumpTable(SqliteFileParser parser, String tableName)
+        {
+            using (var reader = new SqliteFileReader(parser))
+            {
+                reader.TableRecordRead += (s, e) =>
                 {
-                    Console.WriteLine($"'{masterTableRecord.Type}'\t'{masterTableRecord.Name}'\t'{masterTableRecord.TableName}'\t{masterTableRecord.RootPage}\t'{masterTableRecord.Sql}'");
-                }
+                    foreach (var field in e.Fields)
+                    {
+                        Console.Write($"'{field.Value}'\t");
+                    }
+                    Console.WriteLine();
+                };
+
+                reader.ReadTable(tableName);
             }
         }
     }

@@ -1,4 +1,4 @@
-﻿namespace Vurdalakov.SqliteParser
+﻿namespace Vurdalakov
 {
     using System;
 

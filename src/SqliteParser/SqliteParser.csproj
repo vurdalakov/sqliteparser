@@ -39,8 +39,9 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BigEndianExtensions.cs" />
+    <Compile Include="Vurdalakov\BigEndianExtensions.cs" />
     <Compile Include="CellType.cs" />
+    <Compile Include="SqliteFileReaderEventArgs.cs" />
     <Compile Include="MasterTableRecord.cs" />
     <Compile Include="SqliteField.cs" />
     <Compile Include="SqliteFileHeader.cs" />
@@ -54,6 +55,7 @@
     <Compile Include="SqliteCellHeader.cs" />
     <Compile Include="SqliteFileReader.cs" />
     <Compile Include="SqlitePageHeader.cs" />
+    <Compile Include="Vurdalakov\EventHandlerSaver.cs" />
     <Compile Include="Vurdalakov\ObjectExtensions.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

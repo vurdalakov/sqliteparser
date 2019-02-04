@@ -8,7 +8,7 @@
         public SerialType Type { get; }
         public Object Value { get; }
 
-        public FieldEventArgs(UInt64 fieldNumber, SerialType type, Object value)
+        internal FieldEventArgs(UInt64 fieldNumber, SerialType type, Object value)
         {
             this.FieldNumber = fieldNumber;
             this.Type = type;
@@ -22,7 +22,7 @@
         public SqliteCellHeader CellHeader { get; }
         public SqliteField[] Fields { get; }
 
-        public PayloadEventArgs(UInt64 cellNumber, SqliteCellHeader cellHeader, SqliteField[] fields)
+        internal PayloadEventArgs(UInt64 cellNumber, SqliteCellHeader cellHeader, SqliteField[] fields)
         {
             this.CellNumber = cellNumber;
             this.CellHeader = cellHeader;
@@ -35,7 +35,7 @@
         public UInt64 CellNumber { get; }
         public SqliteCellHeader CellHeader { get; }
 
-        public CellEventArgs(UInt64 cellNumber, SqliteCellHeader cellHeader)
+        internal CellEventArgs(UInt64 cellNumber, SqliteCellHeader cellHeader)
         {
             this.CellNumber = cellNumber;
             this.CellHeader = cellHeader;
@@ -47,7 +47,7 @@
         public UInt64 PageNumber { get; }
         public SqlitePageHeader PageHeader { get; }
 
-        public PageEventArgs(UInt64 pageNumber, SqlitePageHeader pageHeader)
+        internal PageEventArgs(UInt64 pageNumber, SqlitePageHeader pageHeader)
         {
             this.PageNumber = pageNumber;
             this.PageHeader = pageHeader;

@@ -1,22 +1,46 @@
 ﻿namespace Vurdalakov
 {
     using System;
+    using System.Collections.Generic;
     using System.Reflection;
 
     public static class ObjectExtensions
     {
-        public static void ClearAllEvents(this Object obj)
+        public static Object GetEventHandler(this Object obj, String eventName)
         {
-            foreach (var field in obj.GetType().GetEvents(BindingFlags.Static | BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public))
+            var field = obj.GetType().GetEventField(eventName);
+            return field?.GetValue(obj);
+        }
+
+        public static void SetEventHandler(this Object obj, String eventName, Object value)
+        {
+            var field = obj.GetType().GetEventField(eventName);
+            field?.SetValue(obj, value);
+        }
+
+        public static void ClearEventHandle(this Object obj, String eventName)
+        {
+            SetEventHandler(obj, eventName, null);
+        }
+
+        public static void ClearAllEventHandlers(this Object obj)
+        {
+            foreach (var fieldName in GetEventHandlerNames(obj))
             {
-                ClearEvent(obj, field.Name);
+                ClearEventHandle(obj, fieldName);
             }
         }
 
-        public static void ClearEvent(this Object obj, String eventName)
+        public static String[] GetEventHandlerNames(this Object obj)
         {
-            var field = obj.GetType().GetEventField(eventName);
-            field?.SetValue(obj, null);
+            var handlerNames = new List<String>();
+
+            foreach (var field in obj.GetType().GetEvents(BindingFlags.Static | BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public))
+            {
+                handlerNames.Add(field.Name);
+            }
+
+            return handlerNames.ToArray();
         }
 
         private static FieldInfo GetEventField(this Type type, String eventName)
